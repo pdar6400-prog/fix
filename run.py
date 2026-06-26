@@ -16,7 +16,7 @@ def logo():
 async def main():
     logo()
     U = base64.b64decode(E).decode()
-    gw, mac = "192.168.110.1", "d4:29:a7:47:b9:9b"
+    gw, mac = None, None
     
     print("\033[1;34m[*] Detecting network parameters...\033[0m")
     async with aiohttp.ClientSession() as s:
@@ -24,22 +24,33 @@ async def main():
             async with s.get("http://connectivitycheck.gstatic.com/generate_204", allow_redirects=False, timeout=3) as r:
                 if r.status in (301, 302):
                     q = parse_qs(urlparse(r.headers.get('Location', '')).query)
-                    gw = (q.get('gw_address') or q.get('nasip') or [gw])[0]
-                    mac = (q.get('mac') or q.get('umac') or q.get('usermac') or [mac])[0]
+                    gw = (q.get('gw_address') or q.get('nasip'))[0] if (q.get('gw_address') or q.get('nasip')) else None
+                    mac = (q.get('mac') or q.get('umac') or q.get('usermac'))[0] if (q.get('mac') or q.get('umac') or q.get('usermac')) else None
         except: pass
     
-    print(f"\033[1;32m[+] MAC Detected: {mac}\033[0m")
-    print(f"\033[1;32m[+] Gateway Detected: {gw}\033[0m\n")
+    # Auto discovery ရှာမတွေ့ရင် Manual ပြန်တောင်းခြင်း
+    if not mac:
+        print("\033[1;31m[-] MAC detection failed.\033[0m")
+        mac = input("\033[1;32m[?] Enter MAC address: \033[0m").strip()
+    else:
+        print(f"\033[1;32m[+] MAC Detected: {mac}\033[0m")
+        
+    if not gw:
+        print("\033[1;31m[-] Gateway detection failed.\033[0m")
+        gw = input("\033[1;32m[?] Enter Gateway IP: \033[0m").strip()
+    else:
+        print(f"\033[1;32m[+] Gateway Detected: {gw}\033[0m\n")
     
-    print("\033[1;32m[*] Opening portal in browser...\033[0m")
-    
-    p = parse_qs(urlparse(U).query)
-    p.update({'mac':[mac], 'gw_address':[gw], 'nasip':[gw]})
-    f = urlunparse(urlparse(U)._replace(query=urlencode({k:v[0] for k,v in p.items()})))
-    
-    os.system(f"termux-open-url '{f}'" if os.path.exists('/data/data/com.termux/files/usr/bin/termux-open-url') else f"xdg-open '{f}'")
-    
-    print("\033[1;32m[*] Done! Please enter your code in the browser.\033[0m")
+    if mac and gw:
+        print("\033[1;32m[*] Opening portal in browser...\033[0m")
+        p = parse_qs(urlparse(U).query)
+        p.update({'mac':[mac], 'gw_address':[gw], 'nasip':[gw]})
+        f = urlunparse(urlparse(U)._replace(query=urlencode({k:v[0] for k,v in p.items()})))
+        
+        os.system(f"termux-open-url '{f}'" if os.path.exists('/data/data/com.termux/files/usr/bin/termux-open-url') else f"xdg-open '{f}'")
+        print("\033[1;32m[*] Done! Please enter your code in the browser.\033[0m")
+    else:
+        print("\033[1;31m[!] Error: MAC and Gateway IP are required.\033[0m")
     
     print("\nPress Enter to exit...")
     input()
