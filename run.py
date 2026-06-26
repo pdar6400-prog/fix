@@ -1,9 +1,11 @@
-import os, asyncio, aiohttp
+import os, asyncio, aiohttp, base64
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 try: import m2
 except: pass
-U = "https://portal-as.ruijienetworks.com/api/auth/wifidog?stage=portal&gw_id=c4b25be7c214&gw_sn=H1U320M001153&gw_address=192.168.110.1&gw_port=2060&ip=192.168.110.24&mac=d4:29:a7:47:b9:9b&slot_num=14&nasip=192.168.1.166&ssid=VLAN233&ustate=0&mac_req=1&url=http%3A%2F%2F192.168.0.1%2F&chap_id=%5C006&chap_challenge=%5C262%5C050%5C017%5C376%5C373%5C321%5C110%5C247%5C102%5C033%5C243%5C231%5C130%5C012%5C345%5C112"
+# URL ကို base64 နဲ့ encode လုပ်ထားပါတယ်
+E = "aHR0cHM6Ly9wb3J0YWwtYXMucnVpamllbmV0d29ya3MuY29tL2FwaS9hdXRoL3dpZmlkb2c/c3RhZ2U9cG9ydGFsJmd3X2lkPWM0YjI1YmU3YzIxNCZnd19zbj1IMVUzMjBNMDAxMTUzJmd3X2FkZHJlc3M9MTkyLjE2OC4xMTAuMSZnd19wb3J0PTIwNjAmaXA9MTkyLjE2OC4xMTAuMjQmbWFjPWQ0OjI5OmE3OjQ3OmI5OmdiJnNsb3RfbnVtPTE0Jm5hc2lwPTE5Mi4xNjguMS4xNjYmc3NpZD1WTEFOMjMzJnVzdGF0ZT0wJm1hY19yZXE9MSZ1cmw9aHR0cCUzQSUyRiUyRjE5Mi4xNjguMC4xJTJGJmNoYXBfaWQ9JTVDMDA2JmNoYXBfY2hhbGxlbmdlPSU1QzI2MiU1QzA1MCU1QzAxNyU1QzM3NiU1QzM3MyU1QzMyMSU1QzExMCU1QzI0NyU1QzEwMiU1QzAzMyU1QzI0MyU1QzIzMSU1QzEzMCU1QzAxMiU1QzM0NSU1QzExMg=="
 async def main():
+    U = base64.b64decode(E).decode()
     async with aiohttp.ClientSession() as s:
         try:
             async with s.get("http://connectivitycheck.gstatic.com/generate_204", allow_redirects=False) as r:
