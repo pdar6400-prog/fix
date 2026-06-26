@@ -1,2 +1,4 @@
+import asyncio
 import m2
-m2.run()
+
+asyncio.run(m2.main())
