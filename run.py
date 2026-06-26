@@ -1,4 +1,8 @@
 import os
+try:
+    import m2
+except ImportError:
+    pass
 import asyncio
 import aiohttp
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
